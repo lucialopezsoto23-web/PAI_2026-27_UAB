@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HUT Barcelona – Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<style>
+:root{--bg:#f5f6f8;--ink:#1c2430;--mut:#667085;--acc:#c2410c;--line:#e4e7ec;--navy:#1f3864}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+h1{font-size:18px;margin:0;flex:1 1 280px}
+h2{font-size:14px;margin:0 0 10px}
+button,select,label.btn{font:inherit;padding:7px 12px;border-radius:6px;border:1px solid #cbd2dc;background:#fff;color:var(--ink);cursor:pointer}
+label.p{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+main{padding:16px 20px;max-width:1300px;margin:auto}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+.bar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
+.bar span{color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
+.k b{display:block;font-size:24px;color:var(--navy)}
+.k span{color:var(--mut);font-size:12px}
+.g2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:14px}
+#map{width:100%;height:auto;display:block}
+.leg{height:10px;border-radius:5px;margin-top:6px}
+.legl{display:flex;justify-content:space-between;color:var(--mut);font-size:12px}
+.br{display:grid;grid-template-columns:150px 1fr 80px;gap:8px;align-items:center;margin:4px 0;font-size:13px}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr{background:#eef0f3;border-radius:4px;height:12px}
+.fl{background:var(--acc);height:12px;border-radius:4px}
+.vl{text-align:right;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--mut);font-weight:600}
+td.n,th.n{text-align:right}
+.note{color:var(--mut);font-size:12px;margin-top:8px}
+#tip{position:absolute;display:none;background:#fff;border:1px solid #cbd2dc;border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);pointer-events:none;z-index:9}
+.hide{display:none}
+#empty{text-align:center;padding:50px 20px;color:var(--mut)}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Viviendas de uso turístico (HUT) · Barcelona</h1>
+  <label class="btn p">Seleccionar CSV<input id="csv" type="file" accept=".csv,text/csv" hidden></label>
+</header>
+<main>
+  <div id="empty" class="card">
+    <p><b>Selecciona el archivo <code>hut_comunicacio_opendata.csv</code></b> (Open Data BCN) para empezar.</p>
+    <p id="gs">Cargando límites de barrios…</p>
+    <label id="geoBtn" class="btn hide">Seleccionar barris.geojson<input id="geo" type="file" accept=".json,.geojson" hidden></label>
+  </div>
+  <div id="app" class="hide">
+    <div class="bar card">
+      <span>Distrito</span><select id="dist"><option value="">Toda la ciudad</option></select>
+      <span>Mapa y ranking por</span>
+      <select id="metric">
+        <option value="vkm">Viviendas por km²</option>
+        <option value="pkm">Plazas por km²</option>
+        <option value="v">Viviendas (absoluto)</option>
+        <option value="p">Plazas (absoluto)</option>
+      </select>
+    </div>
+    <div id="kpis" class="kpis"></div>
+    <div class="g2">
+      <div class="card"><h2 id="mt"></h2><svg id="map" viewBox="0 0 600 520"></svg>
+        <div id="leg" class="leg"></div><div class="legl"><span>0</span><span id="legmax"></span></div>
+        <p id="mapnote" class="note"></p>
+      </div>
+      <div class="card"><h2 id="rt"></h2><div id="rank"></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><h2>Viviendas por distrito</h2><div id="dists"></div></div>
+      <div class="card"><h2>Edificios con más viviendas turísticas</h2>
+        <table><thead><tr><th>Dirección</th><th>Barrio</th><th class="n">Viv.</th><th class="n">Plazas</th></tr></thead><tbody id="bld"></tbody></table>
+        <p class="note">Un edificio = misma coordenada. Las coordenadas son del edificio, no de la vivienda.</p>
+      </div>
+    </div>
+    <p id="foot" class="note"></p>
+  </div>
+</main>
+<div id="tip"></div>
+<script>
+const GEO_URLS=['https://raw.githubusercontent.com/martgnz/bcn-geodata/master/barris/barris.geojson','https://raw.githubusercontent.com/martgnz/bcn-geodata/master/barris/barris.json'];
+const NEED=['CODI_DISTRICTE','NOM_DISTRICTE','CODI_BARRI','NOM_BARRI','NUMERO_PLACES','LONGITUD_X','LATITUD_Y','TIPUS_CARRER','CARRER','NUM1'];
+const MET={vkm:['Viviendas por km²',1],pkm:['Plazas por km²',1],v:['Viviendas',0],p:['Plazas',0]};
+const $=id=>document.getElementById(id);
+const nf=new Intl.NumberFormat('es-ES',{maximumFractionDigits:0}),nf1=new Intl.NumberFormat('es-ES',{maximumFractionDigits:1});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fm=(m,x)=>(MET[m][1]?nf1:nf).format(x);
+let rows=[],geo=null,A={},NM={},CN={};
+
+function toFC(d){if(d.type==='Topology'){return topojson.feature(d,d.objects[Object.keys(d.objects)[0]]);}return d;}
+function setGeo(g){
+  geo=g;A={};NM={};
+  g.features.forEach(f=>{const p=f.properties;A[p.BARRI]=p.AREA/1e6;NM[p.BARRI]=p.NOM;});
+  $('gs').textContent='Límites de barrios cargados ('+g.features.length+' barrios).';
+  $('geoBtn').classList.add('hide');
+  if(rows.length)render();
+}
+async function loadGeo(){
+  for(const u of GEO_URLS){
+    try{const r=await fetch(u);if(!r.ok)continue;const g=toFC(await r.json());
+      if(g.features&&g.features.length){setGeo(g);return;}}catch(e){}
+  }
+  $('gs').textContent='No se pudieron descargar los límites de barrios (¿sin conexión?). Puedes seleccionar el archivo barris.geojson manualmente; sin él no habrá mapa ni densidades por km².';
+  $('geoBtn').classList.remove('hide');
+}
+$('geo').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{setGeo(toFC(JSON.parse(r.result)));}catch(x){alert('No se pudo leer el archivo de límites.');}};
+  r.readAsText(f);
+};
+
+const padB=s=>{const n=parseInt(s);return isNaN(n)?'':String(n).padStart(2,'0');};
+$('csv').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  Papa.parse(f,{header:true,skipEmptyLines:true,complete:res=>{
+    const miss=NEED.filter(c=>!(res.meta.fields||[]).includes(c));
+    if(miss.length){alert('Faltan columnas en el CSV: '+miss.join(', '));return;}
+    rows=res.data.map(r=>{const p=parseInt(r.NUMERO_PLACES);return{
+      dc:String(r.CODI_DISTRICTE||'').trim(),dn:String(r.NOM_DISTRICTE||'').trim(),
+      bc:padB(r.CODI_BARRI),bn:String(r.NOM_BARRI||'').trim(),
+      pl:isNaN(p)?0:p,plOk:!isNaN(p),x:r.LONGITUD_X,y:r.LATITUD_Y,
+      st:((r.TIPUS_CARRER||'')+' '+(r.CARRER||'')).trim(),n:String(r.NUM1||'').trim()};});
+    init();
+  }});
+};
+
+function init(){
+  CN={};const D=new Map();
+  rows.forEach(r=>{if(r.bc&&r.bn)CN[r.bc]=r.bn;if(r.dc)D.set(r.dc,r.dn);});
+  const sel=$('dist');sel.length=1;
+  [...D.entries()].sort((a,b)=>a[0]-b[0]).forEach(([c,n])=>sel.add(new Option(n,c)));
+  $('empty').classList.add('hide');$('app').classList.remove('hide');
+  render();
+}
+$('dist').onchange=$('metric').onchange=()=>render();
+
+function bars(list,max,m){
+  return list.map(([n,v,t])=>`<div class="br" title="${esc(t||'')}"><span class="nm">${esc(n)}</span><div class="tr"><div class="fl" style="width:${max?Math.max(1,v/max*100):0}%"></div></div><span class="vl">${m?fm(m,v):nf.format(v)}</span></div>`).join('');
+}
+
+function render(){
+  if(!rows.length)return;
+  const ds=$('dist').value;let m=$('metric').value;
+  if(!geo&&(m==='vkm'||m==='pkm')){m='v';$('metric').value='v';}
+  const R=ds?rows.filter(r=>r.dc===ds):rows;
+  const B=new Map();
+  R.forEach(r=>{if(!r.bc)return;const b=B.get(r.bc)||{bc:r.bc,v:0,p:0};b.v++;b.p+=r.pl;B.set(r.bc,b);});
+  const val=b=>m==='v'?b.v:m==='p'?b.p:(A[b.bc]?(m==='vkm'?b.v:b.p)/A[b.bc]:0);
+  const arr=[...B.values()].sort((a,b)=>val(b)-val(a)),max=arr.length?val(arr[0]):1;
+
+  // KPIs
+  const pl=R.reduce((s,r)=>s+r.pl,0),conPl=R.filter(r=>r.plOk).length;
+  const E=new Map();
+  R.forEach(r=>{const k=r.x+','+r.y;let e=E.get(k);if(!e){e={st:r.st+', '+r.n,bn:r.bn,v:0,p:0};E.set(k,e);}e.v++;e.p+=r.pl;});
+  $('kpis').innerHTML=[['Viviendas',nf.format(R.length)],['Plazas',nf.format(pl)],
+    ['Plazas por vivienda',nf1.format(conPl?pl/conPl:0)],['Edificios',nf.format(E.size)],
+    ['Viviendas por edificio',nf1.format(E.size?R.length/E.size:0)]]
+    .map(([l,v])=>`<div class="card k"><b>${v}</b><span>${l}</span></div>`).join('');
+
+  // Ranking
+  $('rt').textContent='Top 15 barrios · '+MET[m][0];
+  $('rank').innerHTML=bars(arr.slice(0,15).map(b=>[NM[b.bc]||CN[b.bc]||b.bc,val(b),b.v+' viviendas · '+b.p+' plazas']),max,m);
+
+  // Distritos (siempre toda la ciudad; el seleccionado se filtra arriba)
+  const D=new Map();
+  rows.forEach(r=>{if(!r.dn)return;D.set(r.dn,(D.get(r.dn)||0)+1);});
+  const dl=[...D.entries()].sort((a,b)=>b[1]-a[1]);
+  $('dists').innerHTML=bars(dl,dl.length?dl[0][1]:1,null);
+
+  // Edificios
+  $('bld').innerHTML=[...E.values()].sort((a,b)=>b.v-a.v||b.p-a.p).slice(0,15)
+    .map(e=>`<tr><td>${esc(e.st)}</td><td>${esc(e.bn)}</td><td class="n">${e.v}</td><td class="n">${e.p}</td></tr>`).join('');
+
+  // Mapa
+  $('mt').textContent='Mapa por barrio · '+MET[m][0];
+  drawMap(B,val,max,m);
+
+  const sb=rows.filter(r=>!r.bc).length,sp=rows.filter(r=>!r.plOk).length;
+  $('foot').textContent=`Filas leídas: ${nf.format(rows.length)}. ${sb} sin barrio (no entran en mapa ni ranking) y ${sp} sin plazas informadas (cuentan como 0 plazas).`;
+}
+
+function drawMap(B,val,max,m){
+  const svg=d3.select('#map');svg.selectAll('*').remove();
+  const tip=$('tip');
+  if(!geo){svg.append('text').attr('x',300).attr('y',260).attr('text-anchor','middle').attr('fill','#667085').text('Sin límites de barrios: no se puede dibujar el mapa');
+    $('leg').style.background='none';$('legmax').textContent='';$('mapnote').textContent='';return;}
+  const proj=d3.geoMercator().fitSize([600,520],geo),path=d3.geoPath(proj);
+  const col=d3.scaleSequentialSqrt(d3.interpolateYlOrRd).domain([0,max||1]);
+  svg.selectAll('path').data(geo.features).join('path')
+    .attr('d',path).attr('stroke','#fff').attr('stroke-width',.8)
+    .attr('fill',f=>{const b=B.get(f.properties.BARRI);return b?col(val(b)):'#eef0f3';})
+    .on('mousemove',(ev,f)=>{
+      const p=f.properties,b=B.get(p.BARRI)||{v:0,p:0},a=A[p.BARRI];
+      tip.innerHTML=`<b>${esc(p.NOM)}</b><br>${b.v} viviendas · ${b.p} plazas<br>Superficie: ${nf1.format(a)} km²<br>${nf1.format(b.v/a)} viv./km² · ${nf1.format(b.p/a)} plazas/km²`;
+      tip.style.display='block';tip.style.left=(ev.pageX+14)+'px';tip.style.top=(ev.pageY+14)+'px';})
+    .on('mouseleave',()=>tip.style.display='none');
+  const stops=[0,.25,.5,.75,1].map(t=>d3.interpolateYlOrRd(t)).join(',');
+  $('leg').style.background=`linear-gradient(to right,${stops})`;
+  $('legmax').textContent=fm(m,max);
+  $('mapnote').textContent='Escala de color en raíz cuadrada, para distinguir mejor los barrios con valores bajos. Gris: sin viviendas en el filtro actual.';
+}
+
+loadGeo();
+</script>
+</body>
+</html>
