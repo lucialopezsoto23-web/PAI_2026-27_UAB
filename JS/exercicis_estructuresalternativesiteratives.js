@@ -53,31 +53,31 @@
 // }
 
 // 13.6.- Fent servir només if, escriure un programa que donat amb prompt un número de mes,entre 1 i 12, escrigui per pantalla el nom del mes que correspon.
-let mes = parseInt(prompt("Introdueix el número del mes (1-12):"));
-if (mes === 1) {
-    console.log("El mes és gener.");
-} else if (mes === 2) {
-    console.log("El mes és febrer.");
-} else if (mes === 3) {
-    console.log("El mes és març.");
-} else if (mes === 4) {
-    console.log("El mes és abril.");
-} else if (mes === 5) {
-    console.log("El mes és maig.");
-} else if (mes === 6) {
-    console.log("El mes és juny.");
-} else if (mes === 7) {
-    console.log("El mes és juliol.");
-} else if (mes === 8) {
-    console.log("El mes és agost.");
-} else if (mes === 9) {
-    console.log("El mes és setembre.");
-} else if (mes === 10) {
-    console.log("El mes és octubre.");
-} else if (mes === 11) {
-    console.log("El mes és novembre.");
-} else if (mes === 12) {
-    console.log("El mes és desembre.");
-} else {
-    console.log("Número de mes no vàlid. Si us plau, introdueix un número entre 1 i 12.");
-}
+// let mes = parseInt(prompt("Introdueix el número del mes (1-12):"));
+// if (mes === 1) {
+//     console.log("El mes és gener.");
+// } else if (mes === 2) {
+//     console.log("El mes és febrer.");
+// } else if (mes === 3) {
+//     console.log("El mes és març.");
+// } else if (mes === 4) {
+//     console.log("El mes és abril.");
+// } else if (mes === 5) {
+//     console.log("El mes és maig.");
+// } else if (mes === 6) {
+//     console.log("El mes és juny.");
+// } else if (mes === 7) {
+//     console.log("El mes és juliol.");
+// } else if (mes === 8) {
+//     console.log("El mes és agost.");
+// } else if (mes === 9) {
+//     console.log("El mes és setembre.");
+// } else if (mes === 10) {
+//     console.log("El mes és octubre.");
+// } else if (mes === 11) {
+//     console.log("El mes és novembre.");
+// } else if (mes === 12) {
+//     console.log("El mes és desembre.");
+// } else {
+//     console.log("Número de mes no vàlid. Si us plau, introdueix un número entre 1 i 12.");
+// }
