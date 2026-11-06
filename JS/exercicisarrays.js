@@ -61,11 +61,31 @@
 //     console.log(taula[i]);
 // }
 
-/*21.8.- Fes un programa que escrigui a la consola la suma tots els valors
-emmagatzemats a la taula.*/
+// /*21.8.- Fes un programa que escrigui a la consola la suma tots els valors
+// emmagatzemats a la taula.*/
+// let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
+// let suma = 0;
+// for (let i = 0; i < taula.length; i++) {
+//     suma += taula[i];
+// }
+// console.log(suma);
+
+// /*21.9.- Fes un programa que crei una segona taula i emmagatzemi a ella tots els
+// valors de la taula, tot sumant-los 25 (així les tres primeres posicions de la nova taula
+// emmagatzemarien [48, 70, 88] Un cop fet haurà d’escriure la nova taula a la consola.*/
+// let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
+// let novaTaula = [];
+// for (let i = 0; i < taula.length; i++) {
+//     novaTaula[i] = taula[i] + 25;
+// }
+// console.log(novaTaula);
+
+/*21.10.- Fes un programa que calculi la mitjana dels valors emmagatzemats a la taula
+i l’escrigui a la consola */
 let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
 let suma = 0;
 for (let i = 0; i < taula.length; i++) {
     suma += taula[i];
 }
-console.log(suma);
+let mitjana = suma / taula.length;
+console.log(mitjana);
