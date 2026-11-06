@@ -80,12 +80,53 @@
 // }
 // console.log(novaTaula);
 
-/*21.10.- Fes un programa que calculi la mitjana dels valors emmagatzemats a la taula
-i l’escrigui a la consola */
-let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
-let suma = 0;
-for (let i = 0; i < taula.length; i++) {
-    suma += taula[i];
-}
-let mitjana = suma / taula.length;
-console.log(mitjana);
+// /*21.10.- Fes un programa que calculi la mitjana dels valors emmagatzemats a la taula
+// i l’escrigui a la consola */
+// let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
+// let suma = 0;
+// for (let i = 0; i < taula.length; i++) {
+//     suma += taula[i];
+// }
+// let mitjana = suma / taula.length;
+// console.log(mitjana);
+
+// /*21.11.- Fes un programa que calculi i escrigui a la consola els valors més gran i més
+// petit de la taula.*/
+// let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
+// let max = taula[0];
+// let min = taula[0];
+// for (let i = 0; i < taula.length; i++) {
+//     if (taula[i] > max) {
+//         max = taula[i];
+//     }
+//     if (taula[i] < min) {
+//         min = taula[i];
+//     }
+// }
+// console.log("Valor màxim:", max);
+// console.log("Valor mínim:", min);
+
+// /*21.12.- Fes un programa que crei una nova taula on s’emmagatzemin només els
+// valors parells de la taula i que escrigui el contingut d’aquesta nova taula a la consola. */
+// let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
+// let novaTaula = [];
+// for (let i = 0; i < taula.length; i++) {
+//     if (taula[i] % 2 === 0) {
+//         novaTaula.push(taula[i]);
+//     }
+// }
+// console.log(novaTaula);
+
+// /*21.13.- Fes un programa que demani a l’usuari un valor (fent servir prompt()) i
+// escrigui a la consola quants cops apareix aquest valor a la taula. */
+// let taula = [23,45,63,78,23,68,3,78,32,53,93,21,53,5,62,78];
+// let valor = parseInt(prompt("Introdueix un valor:"));
+
+// /*21.14.- Fes un programa que, donats dos arrays de números, comprovi si tots dos tenen el
+// mateix número d’elements i, si és així, crei una nova taula que contingui la suma de cada
+// element que es trobi a la mateixa posició als dos arrys.*/
+// let array1 = [1, 2, 3, 4];
+// let array2 = [5, 6, 7, 8];
+
+
+
