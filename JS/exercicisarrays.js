@@ -128,5 +128,9 @@
 // let array1 = [1, 2, 3, 4];
 // let array2 = [5, 6, 7, 8];
 
+/*21.15.- Fes un programa que, donats una taula amb números, guardi a una nova taula els
+valors de la primera però donant-li la volta.*/
+
+
 
 
