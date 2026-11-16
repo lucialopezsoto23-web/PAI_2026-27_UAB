@@ -128,9 +128,71 @@
 // let array1 = [1, 2, 3, 4];
 // let array2 = [5, 6, 7, 8];
 
-/*21.15.- Fes un programa que, donats una taula amb números, guardi a una nova taula els
-valors de la primera però donant-li la volta.*/
+// /*21.15.- Fes un programa que, donats una taula amb números, guardi a una nova taula els
+// valors de la primera però donant-li la volta.*/
+// let original = [1, 2, 3, 4, 5];
+// let invertida = [];
+// for (let i = original.length - 1; i >= 0; i--) {
+//     invertida.push(original[i]);
+// }
+// console.log(invertida); // [5, 4, 3, 2, 1]
 
+// /*21.16Fes un programa que demani un número a l’usuari (fent servir prompt()) i
+// escrigui a la consola si es troba o no a la taula. IMPORTANT: Fes-lo fent servir un
+// while de manera que si es troba l’element, s’acabi el bucle.*/
+// let taula = [23, 45, 63, 78, 23, 68, 3, 78, 32, 53, 93, 21, 53, 5, 62, 78];
+// let num = Number(prompt("Introdueix un número per buscar a la taula:"));
+// let i = 0;
+// let trobat = false;
+// while (i < taula.length) {
+//     if (taula[i] === num) {
+//         trobat = true;
+//         break; // Acaba el bucle si es troba l'element
+//     }
+//     i++;
+// }
+// if (trobat) {
+//     console.log("El número SÍ es troba a la taula.");
+// } else {
+//     console.log("El número NO es troba a la taula.");
+// }
 
+// /* 21.17Fes un programa que demani un número a l’usuari (fent servir prompt()) i
+// escrigui a la consola si hi ha algun valor més gran a la taula. IMPORTANT: Fes-lo
+// fent servir un while de manera que si es troba que hi ha un element més gran,
+// s’acabi el bucle.*/
+// let taula = [23, 45, 63, 78, 23, 68, 3, 78, 32, 53, 93, 21, 53, 5, 62, 78];
+// let num = Number(prompt("Introdueix un número:"));
+// let i = 0;
+// let majorTrobat = false;
+// while (i < taula.length) {
+//     if (taula[i] > num) {
+//         majorTrobat = true;
+//         break; // S'acaba el bucle al trobar un element més gran
+//     }
+//     i++;
+// }
+// if (majorTrobat) {
+//     console.log("Sí, hi ha algun valor més gran a la taula.");
+// } else {
+//     console.log("No, no hi ha cap valor més gran a la taula.");
+// }
+
+// /*Fes un programa que escrigui “Sí” si el primer número de la taula està repetit
+// i “No” en cas contrari.*/
+// let taula = [23, 45, 63, 78, 23, 68, 3, 78, 32, 53, 93, 21, 53, 5, 62, 78];
+// let primer = taula[0];
+// let repetit = false;
+// for (let i = 1; i < taula.length; i++) {
+//     if (taula[i] === primer) {
+//         repetit = true;
+//         break;
+//     }
+// }
+// if (repetit) {
+//     console.log("Sí");
+// } else {
+//     console.log("No");
+// }
 
 
